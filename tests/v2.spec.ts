@@ -112,6 +112,34 @@ test('阁楼、电池、特殊花与零点广播形成闭环', async ({ page }) 
   expect(errors).toEqual([])
 })
 
+
+test('可以从花圃入口清除农场本地进度', async ({ page }) => {
+  const errors = watchRuntimeErrors(page)
+  await page.goto('/')
+  await page.evaluate(() => {
+    localStorage.setItem('pink-signal-farm:v2', JSON.stringify({
+      version: 2,
+      unlocked: ['cat:trusted'],
+      inventory: ['copper-key'],
+      shards: { bloom: true, broadcast: true, ember: false },
+      caughtPetals: 6,
+      towerBands: [0, 1, 2],
+      catTrust: 3,
+      revivedFailedProject: false,
+      endingSeen: false,
+      lastVisitDate: '2026-07-15',
+      soundEnabled: false,
+    }))
+  })
+  await page.reload()
+
+  await page.getByTestId('clear-local-progress').click()
+  await expect(page.getByText(/互动进度已清除/)).toBeVisible()
+  await expect(page.locator('.ending-gate__progress strong')).toHaveText('0/3')
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('pink-signal-farm:v2'))).toBeNull()
+  expect(errors).toEqual([])
+})
+
 test('移动端布局无横向溢出', async ({ page }) => {
   const errors = watchRuntimeErrors(page)
   await page.setViewportSize({ width: 390, height: 844 })
