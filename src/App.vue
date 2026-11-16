@@ -64,6 +64,7 @@ const {
   markBand,
   reviveProject,
   completeEnding,
+  reset,
 } = useFarmWorld()
 
 const { play } = usePixelAudio({ enabled: () => state.soundEnabled })
@@ -89,6 +90,11 @@ function updateSignal(progress: number) {
   articleProgress.value = progress
   const nextLevel = progress >= 100 ? 4 : Math.ceil(Math.max(0, progress) / 34)
   signalLevel.value = Math.max(signalLevel.value, nextLevel)
+}
+
+function clearLocalProgress() {
+  reset()
+  showNotice('互动进度已清除。本浏览器中的农场状态已经恢复默认。', 4200)
 }
 
 function shakeTree() {
@@ -417,6 +423,17 @@ onBeforeUnmount(() => {
             <p class="section-copy">
               选择土地播种，再浇水三次。花朵会从种子长到盛开，并保存在你的浏览器里。
             </p>
+            <div class="garden-progress-tools" aria-label="本地进度管理">
+              <p class="garden-progress-note">互动进度仅保存在你的浏览器本地。</p>
+              <button
+                type="button"
+                class="garden-reset-button pixel-font"
+                data-testid="clear-local-progress"
+                @click="clearLocalProgress"
+              >
+                清除本地进度
+              </button>
+            </div>
             <div class="garden-rule" aria-hidden="true">
               <span>播种</span><b></b><span>浇水</span><b></b><span>盛开</span>
             </div>
@@ -781,6 +798,43 @@ onBeforeUnmount(() => {
   margin: 0 0 18px;
   color: var(--rose-deep);
   font-size: 14px;
+}
+
+.garden-progress-tools {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.garden-progress-note {
+  max-width: 34ch;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.garden-reset-button {
+  min-height: 42px;
+  padding: 9px 12px;
+  color: var(--ink);
+  background: transparent;
+  border: 3px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.garden-reset-button:is(:hover, :focus-visible) {
+  color: var(--paper);
+  background: var(--rose-strong);
+  transform: translate(-2px, -2px);
+}
+
+.garden-reset-button:focus-visible {
+  outline: 3px solid var(--rose-deep);
+  outline-offset: 3px;
 }
 
 .garden-rule {
